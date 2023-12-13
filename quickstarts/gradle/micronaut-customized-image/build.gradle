@@ -1,0 +1,87 @@
+/*
+ * Copyright (c) 2019 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at:
+ *
+ *     https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+plugins {
+    id("com.github.johnrengelman.shadow") version "7.0.0"
+    id("io.micronaut.application") version "1.5.4"
+    id("org.eclipse.jkube.kubernetes") version "1.15.0"
+}
+
+version = "1.5.1"
+group = "org.eclipse.jkube.quickstart.gradle.micronaut.custom"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+micronaut {
+    runtime("netty")
+    processing {
+        incremental(true)
+        annotations("org.eclipse.jkube.quickstart.gradle.micronaut.custom.*")
+    }
+}
+
+dependencies {
+    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut:micronaut-management")
+    implementation("io.micronaut:micronaut-runtime")
+    implementation("javax.annotation:javax.annotation-api")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    implementation("io.micronaut:micronaut-validation")
+}
+
+application {
+    mainClass.set("org.eclipse.jkube.quickstart.gradle.micronaut.custom.Application")
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("11")
+    targetCompatibility = JavaVersion.toVersion("11")
+}
+
+kubernetes {
+    buildStrategy = 'jib'
+    images {
+        image {
+            name = "%g/%a:${project.version}"
+            build {
+                from = "quay.io/jkube/jkube-java:0.0.16"
+                tags = ["latest", "${project.version}"]
+                env {
+                    JAVA_APP_JAR = "${project.name}-${project.version}-all.jar"
+                }
+                assembly {
+                    mode = "dir"
+                    targetDir = "/deployments"
+                    layers = [{
+                        id = "custom-assembly-for-micronaut"
+                        files = [{
+                            source = file("build/libs/${project.name}-${project.version}-all.jar")
+                            outputDirectory = "."
+                        }]
+                    }]
+                }
+                ports = ["8080"]
+            }
+        }
+    }
+    enricher {
+        config {
+            "jkube-service" {
+                type = "NodePort"
+            }
+        }
+    }
+}

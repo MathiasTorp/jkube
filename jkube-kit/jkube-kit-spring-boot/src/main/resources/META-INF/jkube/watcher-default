@@ -1,0 +1,2 @@
+# Watcher for spring-boot applications using the spring-boot dev tools
+org.eclipse.jkube.springboot.watcher.SpringBootWatcher,100

@@ -1,0 +1,111 @@
+# Default enrichers
+# =================
+
+# The order of the enrichers is defined in the active profile
+# (which is the profile "default" by default)
+# You can find the default profiles in "profiles-default.yml"
+
+# ----------------------------------------------------------------
+
+# Add a default name for any resource missing
+org.eclipse.jkube.enricher.generic.NameEnricher
+
+# Add a default Deployment, ReplicaSet or ReplicationController if none is given
+org.eclipse.jkube.enricher.generic.DefaultControllerEnricher
+
+# Add a default Namespace or Project if namespace property is specified as an argument
+# to resource mojo or in the xml configuration
+org.eclipse.jkube.enricher.generic.DefaultNamespaceEnricher
+
+# Add image information such as name, image pull policy, environment variables
+# to a container. Controllers (like Deployment, DeploymentConfig, etc.)
+# must be already present
+org.eclipse.jkube.enricher.generic.ImageEnricher
+
+# Add a default service if none is given. Enrich also with
+# other information found
+org.eclipse.jkube.enricher.generic.DefaultServiceEnricher,103
+
+# Add port names from IANA service definitions
+org.eclipse.jkube.enricher.generic.PortNameEnricher
+
+# Add Maven coordinates as labels
+org.eclipse.jkube.enricher.generic.ProjectLabelEnricher
+
+# Copy over annotation from a deployment to its pod spec
+org.eclipse.jkube.enricher.generic.PodAnnotationEnricher
+
+# Add SCM information found in .git as annotations
+org.eclipse.jkube.enricher.generic.GitEnricher
+
+# Add all objects found in dependencies' jar within META-INF/jkube/kubernetes.yml
+org.eclipse.jkube.enricher.generic.DependencyEnricher
+
+# Add an enricher for adding an init container fixing volume mount permissions
+org.eclipse.jkube.enricher.generic.VolumePermissionEnricher
+
+# Add an enricher for enabling debug information
+org.eclipse.jkube.enricher.generic.DebugEnricher
+
+# Add an enricher for adding Maven SCM metadata based on pom.xml scm details
+org.eclipse.jkube.enricher.generic.MavenScmEnricher
+
+# Add an enricher for adding Maven SCM metadata based on pom.xml IssueManagement details
+org.eclipse.jkube.enricher.generic.MavenIssueManagementEnricher
+
+# Add an enricher for Adding Metadata (Labels, Annotations & Selectors) to the generated resources
+org.eclipse.jkube.enricher.generic.DefaultMetadataEnricher
+
+# Resolve the docker registry things
+org.eclipse.jkube.enricher.generic.DockerRegistrySecretEnricher
+
+# Add an enricher for adding revision history limit for deployment resources
+org.eclipse.jkube.enricher.generic.RevisionHistoryEnricher
+
+# Add an enricher for adding trigger annotations to Kubernetes resources
+org.eclipse.jkube.enricher.generic.TriggersAnnotationEnricher
+
+# Add Config Map enricher
+org.eclipse.jkube.enricher.generic.ConfigMapEnricher
+
+# Provide cluster generated CERTs to a pod
+# (see https://docs.openshift.com/dedicated/3/dev_guide/secrets.html#service-serving-certificate-secrets)
+org.eclipse.jkube.enricher.generic.openshift.AutoTLSEnricher
+
+# Add a service account
+org.eclipse.jkube.enricher.generic.ServiceAccountEnricher
+
+# Add a route on demand when on OpenShift
+org.eclipse.jkube.enricher.generic.openshift.RouteEnricher
+
+# Add a deploymentconfig from deployment when on OpenShift
+org.eclipse.jkube.enricher.generic.openshift.DeploymentConfigEnricher
+
+# Add a Project from Namespace when on OpenShift
+org.eclipse.jkube.enricher.generic.openshift.ProjectEnricher
+
+# Enhance a given controller with the configuration information presented in the plugin configuration.
+org.eclipse.jkube.enricher.generic.ControllerViaPluginConfigurationEnricher
+
+# Add Secret enricher
+org.eclipse.jkube.enricher.generic.FileDataSecretEnricher
+
+# ImageChange trigger enrichers for openshift
+org.eclipse.jkube.enricher.generic.openshift.ImageChangeTriggerEnricher
+
+# Add an ingress on demand when on Kubernetes
+org.eclipse.jkube.enricher.generic.IngressEnricher
+
+# Merge JAVA_OPTIONS environment variables from Image Build Configurations and enriched Containers
+org.eclipse.jkube.enricher.generic.ContainerEnvJavaOptionsMergeEnricher
+
+org.eclipse.jkube.enricher.generic.ReplicaCountEnricher
+
+# Set ImagePullPolicy on a Controller's container
+org.eclipse.jkube.enricher.generic.ImagePullPolicyEnricher
+
+# Set StorageClass name in PersistentVolumeClaim annotation or in spec
+org.eclipse.jkube.enricher.generic.PersistentVolumeClaimStorageClassEnricher
+
+# Enforces best practice and recommended security rules
+org.eclipse.jkube.enricher.generic.SecurityHardeningEnricher

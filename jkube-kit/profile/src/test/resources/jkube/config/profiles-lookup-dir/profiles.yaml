@@ -1,0 +1,44 @@
+#
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at:
+#
+#     https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+- name: simple
+  enricher:
+    includes:
+      - base
+      - default.service
+    config:
+      base:
+        url: http://jolokia.org
+  generator:
+    includes:
+      - spring.swarm
+    excludes:
+      - java.app
+- name: merge-1
+  enricher:
+    excludes: [ jkube-project-label ]
+    includes: [ jkube-image ]
+- name: minimal
+  extends: simple
+  enricher:
+    includes:
+      - jkube-name
+      - jkube-controller
+      - jkube-service
+      - jkube-image
+      - jkube-project
+      - jkube-debug
+      - jkube-ingress
+- name: invalid-parent
+  extends: i-dont-exist

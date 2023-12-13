@@ -1,0 +1,21 @@
+#
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at:
+#
+#     https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+web.port: 8080
+web_port: 8080
+webPort: 8080
+ssl.support: 8080
+ports: 8080
+ports.http: 8080
+ports.https: 8080

@@ -1,0 +1,45 @@
+/*
+ * Copyright (c) 2019 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at:
+ *
+ *     https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+plugins {
+    id 'org.springframework.boot' version '2.5.4'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.eclipse.jkube.kubernetes' version '1.15.0'
+    id 'org.eclipse.jkube.openshift' version '1.15.0'
+    id 'java'
+}
+
+group = 'org.eclipse.jkube.quickstart.gradle.springboot.crd'
+version = '1.5.1'
+sourceCompatibility = '11'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.eclipse.jkube.kubernetes:org.eclipse.jkube.kubernetes.gradle.plugin:1.15.0'
+}
+
+kubernetes {
+    enricher {
+        config {
+            'jkube-service' {
+                type = 'NodePort'
+            }
+        }
+    }
+}

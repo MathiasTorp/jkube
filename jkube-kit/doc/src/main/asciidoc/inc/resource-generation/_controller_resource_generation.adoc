@@ -1,0 +1,142 @@
+
+[[resource-controller-generation]]
+=== Controller Generation
+
+In JKube terminology, a Controller resource is a Kubernetes resource which manages Pods created for your application. These can be one of the following resources:
+
+
+* https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/[ReplicationController]
+* https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/[ReplicaSet]
+* https://kubernetes.io/docs/concepts/workloads/controllers/deployment/[Deployment]
+* https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/[StatefulSet]
+* https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/[DaemonSet]
+* https://kubernetes.io/docs/concepts/workloads/controllers/job/[Job]
+* https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/[CronJob]
+ifeval::["{task-prefix}" == "oc"]
+* https://docs.openshift.com/container-platform/4.7/applications/deployments/what-deployments-are.html#deployments-and-deploymentconfigs_what-deployments-are[DeploymentConfig]
+endif::[]
+
+By default, Deployment is generated in Kubernetes mode. You can easily configure different aspects of generated Controller resource using {plugin-configuration-type} configuration. Here is an example:
+
+ifeval::["{plugin-type}" == "maven"]
+include::maven/_controller_resource_configuration_example.adoc[]
+endif::[]
+ifeval::["{plugin-type}" == "gradle"]
+include::gradle/_controller_resource_configuration_example.adoc[]
+endif::[]
+
+ifeval::["{plugin-type}" == "maven"]
+Here are the fields available in `resources` {plugin-configuration-type} configuration that would work with {goal-prefix}:resource:
+endif::[]
+ifeval::["{plugin-type}" == "gradle"]
+Here are the fields available in `resources` {plugin-configuration-type} configuration that would work with {task-prefix}Resource:
+endif::[]
+
+.resources fields for configuring generated controllers
+[cols="1,5"]
+|===
+| Element | Description
+
+| <<generated-controller-resource-configuration, `controller`>>
+| Configuration element for changing various aspects of generated Controller.
+
+| `serviceAccount`
+| ServiceAccount name which will be used by pods created by controller resources(e.g. `Deployment`, `ReplicaSet` etc)
+
+| `useLegacyJKubePrefix`
+| Use old `jkube.io/` annotation prefix instead of `jkube.eclipse.org/` annotation prefix
+|===
+
+[[generated-controller-resource-configuration]]
+==== Configuring generated Controller via {plugin-configuration-type}
+
+This configuration field is focused only on changing various elements of Controller (mainly fields specified in PodTemplateSpec). Here are available configuration fields within this object:
+
+.controller fields for configuring generated controllers
+[cols="1,5"]
+|===
+| Element | Description
+
+| `env`
+| Environment variables which will be added to containers in Pod template spec.
+
+| <<volume-resource-configuration, `volumes`>>
+| Configuration element for adding volume mounts to containers in Pod template spec
+
+| `controllerName`
+| Name of the controller resource(i.e. `Deployment`, `ReplicaSet`, `StatefulSet` etc) generated
+
+| <<probe-resources-configuration, `liveness`>>
+| Configuration element for adding a liveness probe
+
+| <<probe-resources-configuration, `readiness`>>
+| Configuration element for adding readiness probe
+
+| <<probe-resources-configuration, `startup`>>
+| Configuration element for adding startup probe
+
+| `containerPrivileged`
+| Run container in privileged mode. Sets `privileged: true` in generated Controller's PodTemplateSpec
+
+| `imagePullPolicy`
+| How images should be pulled (maps to ImagePullPolicy).
+
+| <<initcontainer-configuration, `initContainers`>>
+| Configuration element for adding https://kubernetes.io/docs/concepts/workloads/pods/init-containers/[InitContainers] to generated Controller resource.
+
+| `replicas`
+| Number of replicas to create
+
+| `restartPolicy`
+| Pod's restart policy.
+
+For `Job`, this defaults to `OnFailure`. For others, it's not provided ({cluster} assumes it to be `Always`)
+
+| <<container-resources-configuration, `containerResources`>>
+| Configure Controller's compute resource requirements
+| `schedule`
+| Schedule for _CronJob_ written in https://en.wikipedia.org/wiki/Cron[Cron] syntax.
+|===
+
+
+[[initcontainer-configuration]]
+==== InitContainer {plugin-configuration-type} configuration
+
+.initContainer fields for specifying initContainers
+[cols="1,5"]
+|===
+| Element | Description
+
+| `name`
+| Name of InitContainer
+
+| `imageName`
+| Image used for InitContainer
+
+| `imagePullPolicy`
+| How images should be pulled (maps to ImagePullPolicy).
+
+| `cmd`
+| Command to be executed in InitContainer (maps to `.command`)
+
+| `volumes`
+| Configuration element for adding volume mounts to InitContainers in Pod template spec
+
+| `env`
+| Environment variables that will be added to this InitContainer in Pod template spec.
+|===
+
+[[container-resources-configuration]]
+==== Container Resource {plugin-configuration-type} configuration
+
+.containerResources fields for specifying compute resource requirements
+[cols="1,5"]
+|===
+| Element | Description
+
+| `requests`
+| The minimum amount of compute resources required. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Kubernetes Resource Management Documentation] for more info.
+
+| `limits`
+| The maximum amount of compute resources allowed. See https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/[Kubernetes Resource Management Documentation] for more info.
+|===

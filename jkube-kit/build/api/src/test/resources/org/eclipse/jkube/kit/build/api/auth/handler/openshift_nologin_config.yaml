@@ -1,0 +1,32 @@
+#
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at:
+#
+#     https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+apiVersion: v1
+clusters:
+- cluster:
+    insecure-skip-tls-verify: true
+    server: https://172.28.128.4:8443
+  name: 172-28-128-4:8443
+contexts:
+- context:
+    cluster: 172-28-128-4:8443
+    namespace: default
+    user: admin/172-28-128-4:8443
+  name: default/172-28-128-4:8443/admin
+current-context: default/172-28-128-4:8443/admin
+kind: Config
+preferences: {}
+users:
+- name: admin/172-28-128-4:8443
+  user: {}

@@ -1,0 +1,127 @@
+[[jkube:resource]]
+== *{goal-prefix}:resource*
+
+This goal generates {cluster} resources based on your project. It can either be opinionated defaults or
+based on the configuration provided in XML config or resource fragments in `src/main/jkube`.
+ifeval::["{goal-prefix}" == "k8s"]
+Generated resources are in `target/classes/META-INF/jkube/kubernetes` directory.
+endif::[]
+ifeval::["{goal-prefix}" == "oc"]
+Generated resources are in `target/classes/META-INF/jkube/openshift` directory.
+endif::[]
+
+include::{kitdoc-path}/inc/resource-generation/_resource_generation.adoc[]
+
+ifeval::["{goal-prefix}" == "oc"]
+include::{kitdoc-path}/inc/route-generation/_route_generation.adoc[]
+endif::[]
+
+[[Supported-Properties-Resource]]
+=== Supported Properties for Resource goal
+
+.Options available with resource goal
+[cols="1,6,1"]
+|===
+| Element | Description | Property
+
+| *profile*
+| Profile to use. A profile contains the enrichers and generators to use as well as their configuration. Profiles are
+  looked up in the classpath and can be provided as yaml files.
+
+  Defaults to `default`.
+| `jkube.profile`
+
+| *sidecar*
+| Whether to enable sidecar behavior or not. By default pod specs are merged into main application container.
+
+  Defaults to `false`.
+| `jkube.sidecar`
+
+| *skipHealthCheck*
+| Whether to skip health checks addition in generated resources or not.
+
+  Defaults to `false`.
+| `jkube.skipHealthCheck`
+
+| *workDir*
+| The JKube working directory. Defaults to `${project.build.directory}/jkube-temp`.
+| `jkube.workDir`
+
+| *environment*
+| Environment name where resources are placed. For example, if you set this property to dev and resourceDir is the
+  default one, plugin will look at `src/main/jkube/dev`.  Multiple environments can also be provided in form of comma separated strings.  Resource fragments in these directories will be combined while generating resources.
+
+  Defaults to `null`.
+| `jkube.environment`
+
+| *useProjectClassPath*
+| Should we use the project's compile time classpath to scan for additional enrichers/generators.
+
+  Defaults to `false`.
+| `jkube.useProjectClassPath`
+
+| *resourceDir*
+| Folder where to find project specific files.
+
+  Defaults to `${basedir}/src/main/jkube`.
+| `jkube.resourceDir`
+
+| *targetDir*
+| The generated Kubernetes manifests target direcotry.
+
+  Defaults to `${project.build.outputDirectory}/META-INF/jkube`.
+| `jkube.targetDir`
+
+| *resourceType*
+| The artifact type for attaching the generated resource file to the project. Can be either 'json' or 'yaml'.
+
+  Defaults to `yaml`.
+| `jkube.resourceType`
+
+| *mergeWithDekorate*
+| When resource generation is delegated to Dekorate, should JKube resources be merged with Dekorate generated ones.
+
+  Defaults to `false`.
+| `jkube.mergeWithDekorate`
+
+| *interpolateTemplateParameters*
+| Interpolate parameter values from `*template.yml` fragments in the generated resource list (`kubernetes.yml`).
+
+  This is useful when using JKube in combination with Helm.
+
+  Placeholders for variables defined in template files can be used in the different resource fragments. Helm generated
+  charts will contain these placeholders/parameters.
+
+  For `resource` goal, these placeholders are replaced in the
+  aggregated resource list YAML file (not in the individual generated resources) if this option is enabled.
+
+  Defaults to `true`.
+| `jkube.interpolateTemplateParameters`
+
+| *skipResource*
+| Skip resource generation.
+
+  Defaults to `false`.
+| `jkube.skip.resource`
+
+| *createExternalUrls*
+| Should we create external Ingress for any LoadBalancer Services which don't already have them.
+
+  Defaults to `false`.
+| `jkube.createExternalUrls`
+
+| *domain*
+| Domain added to the Service ID when creating Kubernetes Ingresses or OpenShift routes.
+| `jkube.domain`
+
+| *replicas*
+| Number of replicas for the container.
+|
+
+| *offline*
+| Whether to try detecting Kubernetes Cluster or stay offline.
+
+  Defaults to `false`.
+| `jkube.offline`
+
+|===

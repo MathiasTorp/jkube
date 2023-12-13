@@ -1,0 +1,60 @@
+/*
+ * Copyright (c) 2019 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at:
+ *
+ *     https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+plugins {
+  id 'java'
+  id 'application'
+  id 'org.eclipse.jkube.kubernetes' version '1.15.0'
+  id 'org.eclipse.jkube.openshift' version '1.15.0'
+  id 'io.vertx.vertx-plugin' version '1.3.0'
+}
+
+group = 'org.eclipse.jkube.quickstarts.gradle'
+version = '1.6.0-SNAPSHOT'
+sourceCompatibility = '11'
+def vertxVersion = '4.2.2'
+def launcherClassName = 'io.vertx.core.Launcher'
+
+repositories {
+  mavenCentral()
+}
+
+application {
+  mainClass.set(launcherClassName)
+}
+
+dependencies {
+  implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
+  implementation "io.vertx:vertx-web:$vertxVersion"
+}
+
+kubernetes {
+  enricher {
+    config {
+      'jkube-service' {
+        type = 'NodePort'
+      }
+    }
+  }
+  generator {
+      config {
+          'vertx' {
+              webPort = '8888'
+          }
+      }
+  }
+}
+
+vertx {
+  mainVerticle = 'org.eclipse.jkube.quickstarts.gradle.vertx.MainVerticle'
+}

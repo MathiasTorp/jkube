@@ -1,0 +1,18 @@
+# JKube specific enrichers
+# ==========================
+
+# The order of the enrichers is defined in the active profile
+# (which is the profile "default" by default)
+# You can find the default profiles in "profiles-default.yml"
+
+# ----------------------------------------------------------------
+
+# Healthcheck Enrichers
+org.eclipse.jkube.kit.enricher.specific.KarafHealthCheckEnricher
+org.eclipse.jkube.kit.enricher.specific.WebAppHealthCheckEnricher
+org.eclipse.jkube.kit.enricher.specific.DockerHealthCheckEnricher,510
+
+# Other enrichers
+org.eclipse.jkube.kit.enricher.specific.PrometheusEnricher
+org.eclipse.jkube.kit.enricher.specific.ServiceDiscoveryEnricher
+

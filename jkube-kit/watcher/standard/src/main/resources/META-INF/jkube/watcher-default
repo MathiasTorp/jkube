@@ -1,0 +1,5 @@
+# Default watchers
+# =================
+
+# Standard watcher for Kubernetes using the fabric8 docker-maven-plugin
+org.eclipse.jkube.watcher.standard.DockerImageWatcher,101

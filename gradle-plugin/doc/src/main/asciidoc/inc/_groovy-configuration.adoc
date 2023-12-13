@@ -1,0 +1,475 @@
+[[groovy-configuration]]
+= Gradle Groovy DSL Configuration
+
+[[global-configuration]]
+== Global Configuration
+.Global configuration
+[cols="1,5,1"]
+|====
+| Element | Description | Property
+
+ | *authConfig*
+| Authentication information when pulling from or pushing to Docker registry. There is a dedicated section
+  <<authentication, Authentication>> for how to do security.
+|
+
+| <<cluster-access-configuration, *access*>>
+| Group of configuration parameters to connect to Kubernetes/OpenShift cluster.
+|
+
+| *autoPull*
+a| Decide how to pull missing base images or images to start:
+
+* `on` : Automatic download any missing images (default)
+* `off` : Automatic pulling is switched off
+* `always` : Pull images always even when they already exist locally
+* `once` : For multi-module builds images are only checked once and pulled for the whole build.
+
+| `jkube.docker.autoPull`
+
+ifeval::["{task-prefix}" == "oc"]
+| *buildOutputKind*
+|  Allow to specify in which registry to push the container image at the end of the build.
+If the output kind is ImageStreamTag, then the image will be pushed to the internal OpenShift registry.
+If the output is of type DockerImage, then the name of the output reference will be used as a Docker push specification.
+The default value is `ImageStreamTag`
+
+| `jkube.build.buildOutput.kind`
+endif::[]
+
+| *buildRecreate*
+a| If the effective build mode is `openshift` then this option decides how the OpenShift resource objects
+associated with the build should be treated when they already exist:
+
+* `buildConfig` or `bc` : Only the BuildConfig is recreated
+* `imageStream` or `is` : Only the ImageStream is recreated
+* `all` : Both, BuildConfig and ImageStream are recreated
+* `none` : Neither BuildConfig nor ImageStream is recreated
+
+The default is `none`. If you provide the property without value then `all` is assumed, so everything gets recreated.
+| `jkube.build.recreate`
+
+| *buildSourceDirectory*
+| Default directory that contains the assembly descriptor(s) used by the plugin. The default value is `src/main/docker`.
+This option is only relevant for the `{task-prefix}Build` task.
+| `jkube.build.source.dir`
+
+| *buildStrategy*
+a| Defines what build strategy to choose while building container image.
+Possible values are `docker` and `jib` out of which `docker` is default.
+
+ifeval::["{task-prefix}" == "oc"]
+If the effective build mode is `openshift` an additional `s2i` option is available
+and selected by default.
+
+Available strategies for OpenShift are:
+
+* `s2i` for a https://docs.openshift.com/enterprise/latest/architecture/core_concepts/builds_and_image_streams.html#source-build[Source-to-Image build] with a binary source
+* `docker` for a https://docs.openshift.com/enterprise/latest/architecture/core_concepts/builds_and_image_streams.html#docker-build[Docker build] with a binary source
+
+endif::[]
+| `jkube.build.strategy`
+
+| *certPath*
+| Path to SSL certificate when SSL is used for communicating with the Docker daemon. These certificates are normally
+stored in `~/.docker/`. With this configuration the path can be set explicitly. If not set, the fallback is first
+taken from the environment variable `DOCKER_CERT_PATH` and then as last resort `~/.docker/`. The keys in this are
+expected with it standard names `ca.pem`, `cert.pem` and `key.pem`.
+Please refer to the https://docs.docker.com/articles/https[Docker documentation] for more information about SSL
+security with Docker.
+| `jkube.docker.certPath`
+
+| *createNewResources*
+| Create new {cluster} resources.
+
+Defaults to `true`
+| `jkube.deploy.create`
+
+| *debugSuspend*
+| Disables readiness probes in Kubernetes Deployment in order to start port forwarding during early phases of application startup.
+
+Defaults to `false`.
+| `jkube.debug.suspend`
+
+| *deletePodsOnReplicationControllerUpdate*
+| Delete all the pods if we update a Replication Controller.
+
+Defaults to `true`.
+| `jkube.deploy.deletePods`
+
+| *dockerHost*
+a| The URL of the Docker Daemon. If this configuration option is not given, then the optional `<machine>` configuration
+section is consulted. The scheme of the URL can be either given directly as `http` or `https`
+depending on whether plain HTTP communication is enabled or SSL should
+be used. Alternatively the scheme could be `tcp` in which case the
+protocol is determined via the IANA assigned port: 2375 for `http`
+and 2376 for `https`. Finally, Unix sockets are supported by using
+the scheme `unix` together with the filesystem path to the unix socket.
+
+The discovery sequence used by the docker-maven-plugin to determine
+the URL is:
+
+. Value of *dockerHost* (`jkube.docker.host`)
+. The Docker host associated with the docker-machine named in `<machine>`, i.e. the `DOCKER_HOST` from `docker-machine env`.
+. The value of the environment variable `DOCKER_HOST`.
+. `unix:///var/run/docker.sock` if it is a readable socket.
+| `jkube.docker.host`
+
+| *filter*
+| In order to temporarily restrict the operation of plugin tasks this configuration option can be used.
+Typically this will be set via the system property `jkube.image.filter` when Gradle is called. The value can be a single
+image name (either its alias or full name) or it can be a comma separated list with multiple image names. Any name
+which doesn't refer an image in the configuration will be ignored.
+| `jkube.image.filter`
+
+| *failOnNoKubernetesJson*
+| Fail if there is no kubernetes json present.
+
+Defaults to `false`.
+| `jkube.deploy.failOnNoKubernetesJson`
+
+| *failOnValidationError*
+| If value is set to `true` then any validation error will block the plugin execution. A warning will be printed
+otherwise.
+
+  Default is `false`.
+| `jkube.failOnValidationError`
+
+ifeval::["{task-prefix}" == "oc"]
+|*forcePull*
+|
+Applicable only for OpenShift, S2I build strategy.
+
+While creating a BuildConfig, By default, if the builder image specified in the
+build configuration is available locally on the node, that image will be used.
+
+Using forcePull will override the local image and refresh it from the registry the image stream points to.
+
+|`jkube.build.forcePull`
+
+| *ignoreRunningOAuthClients*
+| Ignore OAuthClients which are already running. OAuthClients are shared across namespaces so we should not try to update or create/delete global oauth clients.
+
+Defaults to `true`.
+| `jkube.deploy.ignoreRunningOAuthClients`
+endif::[]
+
+| *ignoreServices*
+| Ignore Service resources while applying resources. This is particularly useful when in recreate mode to let you easily recreate all the ReplicationControllers and Pods but leave any service definitions alone to avoid changing the portalIP addresses and breaking existing pods using the service.
+
+Defaults to `false`.
+| `jkube.deploy.ignoreServices`
+
+| [[image-pull-policy]] *imagePullPolicy*
+a| Specify whether images should be pull when looking for base images while building or images for starting.
+This property can take the following values (case insensitive):
+
+* `IfNotPresent`: Automatic download any missing images (default)
+* `Never` : Automatic pulling is switched off always
+* `Always` : Pull images always even when they already exist locally.
+
+By default a progress meter is printed out on the console, which is omitted when using Maven in batch mode (option `-B`). A very simplified progress meter is provided when using no color output (i.e. with `-Djkube.useColor=false`).
+| `jkube.docker.imagePullPolicy`
+
+| *interpolateTemplateParameters*
+| Interpolate parameter values from `*template.yml` fragments in the generated resource list (`kubernetes.yml`).
+
+  This is useful when using JKube in combination with Helm.
+
+  Placeholders for variables defined in template files can be used in the different resource fragments. Helm generated
+  charts will contain these placeholders/parameters.
+
+  For `resource` task, these placeholders are replaced in the
+  aggregated resource list YAML file (not in the individual generated resources) if this option is enabled.
+
+  Defaults to `true`.
+| `jkube.interpolateTemplateParameters`
+
+| *jsonLogDir*
+| The folder we should store any temporary json files or results
+
+Defaults to `${project.rootDir}/build/jkube/applyJson`.
+| `jkube.deploy.jsonLogDir`
+
+ifeval::["{task-prefix}" == "k8s"]
+| *kubernetesManifest*
+| The generated kubernetes YAML file.
+
+  Defaults to `${basedir}/build/META-INF/jkube/kubernetes.yml`.
+| `jkube.kubernetesManifest`
+
+| *kubernetesTemplate*
+| File or directory containing YAML files with OpenShift Template resources to be used as Helm parameters.
+
+Defaults to `${basedir}/build/classes/java/main/META-INF/jkube/kubernetes`
+| `jkube.kubernetesTemplate`
+endif::[]
+
+| *localDebugPort*
+| Default port available for debugging your application inside Kubernetes.
+
+Defaults to `5005`.
+| `jkube.debug.port`
+
+| *logFollow*
+| Get follow logs for your application inside Kubernetes.
+
+  Defaults to `true`.
+| `jkube.log.follow`
+
+| *logContainerName*
+| Get logs of some specific container inside your application Deployment.
+
+  Defaults to `null`.
+| `jkube.log.container`
+
+| *logPodName*
+| Get logs of some specific pod inside your application Deployment.
+
+  Defaults to `null`.
+| `jkube.log.pod`
+
+| *machine*
+| Docker machine configuration.
+|
+
+| *maxConnections*
+| Number of parallel connections are allowed to be opened to the Docker Host. For parsing log output, a connection needs
+to be kept open (as well for the wait features), so don't put that number to low. Default is 100 which should be
+suitable for most of the cases.
+| `jkube.docker.maxConnections`
+
+| *mergeWithDekorate*
+| When resource generation is delegated to Dekorate, should JKube resources be merged with Dekorate generated ones.
+
+  Defaults to `false`.
+| `jkube.mergeWithDekorate`
+
+| *outputDirectory*
+| Default output directory to be used by this plugin.
+The default value is `build/docker` and is only used for the task `{task-prefix}Build`.
+| `jkube.build.target.dir`
+
+| *offline*
+| Whether to try detecting Kubernetes Cluster or stay offline.
+
+  Defaults to `false`.
+| `jkube.offline`
+
+ifeval::["{task-prefix}" == "oc"]
+| *openshiftPullSecret*
+| The name to use for naming pullSecret to be created to pull the base image in case pulling from a private registry
+which requires authentication for OpenShift.
+
+  The default value for pull registry will be picked from `jkube.docker.pull.registry`/`jkube.docker.registry`.
+| `jkube.build.pullSecret`
+
+| *openshiftPushSecret*
+| The name of pushSecret to be used to push the final image in case pushing from a
+protected registry which requires authentication.
+
+| `jkube.build.pushSecret`
+
+endif::[]
+
+// TODO - Add when support is complete
+//| *profile*
+//| Profile to which contains enricher and generators configuration. See <<profiles,Profiles>> for details.
+//| `jkube.profile`
+
+ifeval::["{task-prefix}" == "oc"]
+| *processTemplatesLocally*
+| Process templates locally in Java so that we can apply OpenShift templates on any Kubernetes environment
+
+Defaults to `false`.
+| `jkube.deploy.processTemplatesLocally`
+endif::[]
+
+| *pushRegistry*
+| The registry to use when pushing the image. See <<registry,Registry Handling>> for
+more details.
+| `jkube.docker.push.registry`
+
+| *recreate*
+| Update resources by deleting them first and then creating them again.
+
+Defaults to `false`.
+| `jkube.recreate`
+
+| *registry*
+| Specify globally a registry to use for pulling and pushing images. See <<registry,Registry handling>> for details.
+| `jkube.docker.registry`
+
+| *pushRetries*
+| How often should a push be retried before giving up. This useful for flaky registries which tend to return 500 error codes from time to time.
+
+Defaults to 0.
+| `jkube.docker.push.retries`
+
+| *resourceEnvironment*
+| Environment name where resources are placed. For example, if you set this property to dev and resourceDir is the
+default one, plugin will look at `src/main/jkube/dev`. Multiple environments can also be provided in form of comma separated strings.  Resource fragments in these directories will be combined while generating resources.
+
+  Defaults to `null`.
+| `jkube.environment`
+
+| *resourceSourceDirectory*
+| Folder where to find project specific files.
+
+  Defaults to `${project.rootDir}/src/main/jkube`.
+| `jkube.resourceDir`
+
+| *resourceTargetDirectory*
+| The generated Kubernetes manifests target directory.
+
+  Defaults to `${basedir}/build/classes/java/main/META-INF/jkube`.
+| `jkube.targetDir`
+
+| *rollingUpgrades*
+| Use Rolling Upgrades to apply changes.
+| `jkube.rolling`
+
+ifeval::["{task-prefix}" == "oc"]
+| *s2iImageStreamLookupPolicyLocal*
+| Allow the ImageStream used in the S2I binary build to be used in standard Kubernetes resources such as Deployment or StatefulSet.
+
+Defaults to `true`
+| `jkube.s2i.imageStreamLookupPolicyLocal`
+
+| *s2iBuildNameSuffix*
+|  The S2I binary builder BuildConfig name suffix appended to the image name to avoid clashing with the underlying BuildConfig for the Jenkins pipeline
+
+Defaults to `-s2i`
+| `jkube.s2i.buildNameSuffix`
+endif::[]
+
+| *servicesOnly*
+| Only process services so that those can be recursively created/updated first before creating/updating any pods and Replication Controllers.
+
+Defaults to `false`.
+| `jkube.deploy.servicesOnly`
+
+| *skip*
+| With this parameter the execution of this plugin can be skipped completely.
+| `jkube.skip`
+
+| *skipApply*
+| If set no resource maniefst would be applied to connected {cluster} cluster.
+
+Defaults to `false`.
+| `jkube.skip.apply`
+
+| *skipUndeploy*
+| If set no applied resources would be deleted from connected {cluster} cluster.
+
+Defaults to `false`.
+| `jkube.skip.undeploy`
+
+| *skipBuild*
+| If set not images will be build (which implies also _skip.tag_) with `{task-prefix}Build`.
+| `jkube.skip.build`
+
+| *skipResource*
+| If not set resource manifests would be generated with `{task-prefix}Resource`.
+| `jkube.skip.resource`
+
+| *skipTag*
+| If set to `true` this plugin won't add any tags to images that have been built with `{task-prefix}Build`.
+| `jkube.skip.tag`
+
+| *skipMachine*
+| Skip using docker machine in any case
+| `jkube.docker.skip.machine`
+
+| *skipPush*
+| If set to true the plugin won’t push any images that have been built.
+
+Defaults to `false`.
+| `jkube.skip.push`
+
+| *skipResourceValidation*
+| If value is set to `true` then resource validation is skipped. This may be useful if resource validation is failing
+for some reason but you still want to continue the deployment.
+
+  Default is `false`.
+| `jkube.skipResourceValidation`
+
+| *skipTag*
+| If set to true this plugin won’t push any tags
+
+Defaults to `false`.
+| `jkube.skip.tag`
+
+| *useProjectClassPath*
+| Should we use the project's compile time classpath to scan for additional enrichers/generators.
+
+  Defaults to `false`.
+| `jkube.useProjectClassPath`
+
+| *verbose*
+| Boolean attribute for switching on verbose output like the build steps when doing a Docker build. Default is `false`.
+| `jkube.docker.verbose`
+
+| *watchMode*
+a|
+How to watch for image changes.
+
+* `copy`: Copy watched artifacts into container
+* `build`: Build only images
+* `run`: Run images
+* `both`: Build and run images
+* `none`: Neither build nor run
+
+Defaults to `both`.
+
+| `jkube.watch.mode`
+
+| *watchInterval*
+| Interval in milliseconds (how often to check for changes).
+
+  Defaults to `5000`.
+| `jkube.watch.interval`
+
+| *watchPostExec*
+| A command which is executed within the container after files are copied into this container
+when watchMode is copy. Note that this container must be running.
+
+| `jkube.watch.postExec`
+
+| *workDirectory*
+| The JKube working directory. Defaults to `${project.build.directory}/jkube-temp`.
+| `jkube.workDir`
+|====
+
+include::{kitdoc-path}/inc/apply/_cluster_access_configuration.adoc[]
+
+== Image Configuration
+
+The configuration how images should be created are defined in a dedicated `images` sections. These are specified for each image within the `images` element of the configuration with one `image` element per image to use.
+
+The `image` element can contain the following sub elements:
+
+include::image/_configuration.adoc[]
+
+The `build` section is mandatory and is explained in <<build-configuration, below>>.
+
+include::{kitdoc-path}/inc/image/_naming.adoc[]
+
+include::{kitdoc-path}/inc/build/_index.adoc[]
+
+[[misc-env]]
+== Environment and Labels
+
+include::misc/_env.adoc[]
+
+[[misc-startup]]
+== Startup Arguments
+
+include::misc/_startup.adoc[]
+
+INFO:: Startup arguments are not used in S2I builds
+
+[[kubernetes-resource-configuration]]
+== Kubernetes Resource Configuration
+
+include::{kitdoc-path}/inc/resource-generation/_resource_generation.adoc[]

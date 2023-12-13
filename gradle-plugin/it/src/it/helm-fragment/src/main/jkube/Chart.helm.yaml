@@ -1,0 +1,33 @@
+#
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at:
+#
+#     https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+apiVersion: v1
+name: helm-fragment
+version: 0.0.1-SNAPSHOT
+description: Helm Chart generation via fragment integration test
+keywords:
+  - test
+  - fragments
+home: https://example.com
+sources:
+  - https://example.com/fragments
+dependencies:
+  - name: dependency-via-fragment
+    version: 0.0.1
+    repository: https://example.com/dependency-via-fragment
+maintainers:
+  - name: maintainer-via-fragment
+    email: maintainer@example.com
+    url: https://example.com/user1
+icon: https://example.com/icon1

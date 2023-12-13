@@ -1,0 +1,112 @@
+/*
+ * Copyright (c) 2019 Red Hat, Inc.
+ * This program and the accompanying materials are made
+ * available under the terms of the Eclipse Public License 2.0
+ * which is available at:
+ *
+ *     https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *   Red Hat, Inc. - initial API and implementation
+ */
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.eclipse.jkube.kubernetes' version "${jKubeVersion}"
+    id 'org.eclipse.jkube.openshift' version "${jKubeVersion}"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+}
+
+group = 'org.eclipse.jkube.integration.tests.gradle'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+def vertxVersion = '4.4.4'
+def launcherClassName = 'io.vertx.core.Launcher'
+def mainVerticleName = "org.eclipse.jkube.it.gradle.vertx.MainVerticle"
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass.set(launcherClassName)
+}
+
+dependencies {
+    implementation(platform("io.vertx:vertx-stack-depchain:$vertxVersion"))
+    implementation "io.vertx:vertx-web:$vertxVersion"
+}
+
+shadowJar {
+    archiveClassifier.set("fat")
+    manifest {
+        attributes "Main-Verticle": mainVerticleName
+    }
+    mergeServiceFiles()
+}
+
+kubernetes {
+if (project.hasProperty('configMode') && project.getProperty('configMode').equals('enricherConfig')) {
+    enricher {
+        config {
+            'jkube-healthcheck-vertx' {
+                initialDelay = 3
+                period = 3
+                liveness {
+                    port = '8888'
+                    path = '/health/live'
+                    scheme = 'HTTPS'
+                }
+                readiness {
+                    port = '8888'
+                    path = '/health/ready'
+                    scheme = 'HTTPS'
+                }
+            }
+        }
+    }
+}
+    generator {
+        config {
+            'vertx' {
+                webPort = '8888'
+            }
+        }
+    }
+}
+
+openshift {
+if (project.hasProperty('configMode') && project.getProperty('configMode').equals('enricherConfig')) {
+    enricher {
+        config {
+            'jkube-healthcheck-vertx' {
+                initialDelay = 3
+                period = 3
+                liveness {
+                    port = '8888'
+                    path = '/health/live'
+                    scheme = 'HTTPS'
+                    headers = ["X-Custom-Header": 'Awesome']
+                }
+                readiness {
+                    port = '8888'
+                    path = '/health/ready'
+                    scheme = 'HTTPS'
+                    headers = ["X-Custom-Header": 'Awesome']
+                }
+            }
+        }
+    }
+}
+    generator {
+        config {
+            'vertx' {
+                webPort = '8888'
+            }
+        }
+    }
+}

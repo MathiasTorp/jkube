@@ -1,0 +1,32 @@
+#
+# Copyright (c) 2019 Red Hat, Inc.
+# This program and the accompanying materials are made
+# available under the terms of the Eclipse Public License 2.0
+# which is available at:
+#
+#     https://www.eclipse.org/legal/epl-2.0/
+#
+# SPDX-License-Identifier: EPL-2.0
+#
+# Contributors:
+#   Red Hat, Inc. - initial API and implementation
+#
+
+camel:
+  springboot:
+    # The Camel context name
+    name: {{title}}
+  component:
+    servlet:
+      mapping:
+        contextPath: /*
+
+# Binding health checks to a different port
+management:
+  port: 8081
+
+# disable all management endpoints except health
+endpoints:
+  enabled: false
+  health:
+    enabled: true
