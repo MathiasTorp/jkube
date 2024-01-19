@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0"#encoding="UTF-8" standalone="no"?>
 <!--
 
     Copyright (c) 2019 Red Hat, Inc.
@@ -334,4 +334,4 @@
         <setting id="org.eclipse.jdt.core.formatter.wrap_before_or_operator_multicatch" value="true"/>
         <setting id="org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested" value="true"/>
     </profile>
-</profiles>
+</profiles> 
